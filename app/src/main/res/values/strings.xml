@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CoupleCash</string>
+    <string name="tagline_subtitle">Keuangan Keluarga Bersama, Tersinkron Real-Time</string>
+    <string name="sign_in_with_google">Masuk dengan Google</string>
+    <string name="nav_home">Beranda</string>
+    <string name="nav_transactions">Transaksi</string>
+    <string name="nav_savings">Tabungan</string>
+    <string name="nav_budget">Anggaran</string>
+    <string name="nav_profile">Profil</string>
+    <string name="sync_synced">Tersinkronisasi</string>
+    <string name="sync_syncing">Sedang menyinkronkan</string>
+    <string name="sync_offline">Offline</string>
+    <string name="cd_app_logo">Logo CoupleCash</string>
+    <string name="cd_onboarding_hero">Ilustrasi keuangan keluarga CoupleCash</string>
+    <string name="cd_add_transaction">Catat transaksi baru</string>
+    <string name="cd_profile_avatar">Foto profil pengguna</string>
+</resources>

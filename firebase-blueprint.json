@@ -1,0 +1,227 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated user profile and notification preferences",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "activeHouseholdId": { "type": "string" },
+        "partnerRoleLabel": { "type": "string", "enum": ["Suami", "Istri", "Pasangan"] },
+        "fcmToken": { "type": "string" },
+        "notifPartnerTx": { "type": "boolean" },
+        "notifIncome": { "type": "boolean" },
+        "notifExpense": { "type": "boolean" },
+        "notifSavings": { "type": "boolean" },
+        "notifBudget": { "type": "boolean" },
+        "notifGoal": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "displayName", "email", "createdAt", "updatedAt"]
+    },
+    "Household": {
+      "title": "Household",
+      "description": "Shared family finance ledger (Buku Kas Bersama) capped at 2 active members",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "ownerName": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "activeInviteCode": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "ownerId", "ownerName", "memberUids", "createdAt", "updatedAt"]
+    },
+    "HouseholdMember": {
+      "title": "HouseholdMember",
+      "description": "Member entry inside a shared household",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "householdId": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "displayName": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "role": { "type": "string", "enum": ["OWNER", "PARTNER"] },
+        "partnerLabel": { "type": "string", "enum": ["Suami", "Istri", "Pasangan"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "householdId", "memberUids", "displayName", "role", "partnerLabel", "createdAt", "updatedAt"]
+    },
+    "InviteCode": {
+      "title": "InviteCode",
+      "description": "Expiring invitation code to join a household",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "householdId": { "type": "string" },
+        "householdName": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "ownerName": { "type": "string" },
+        "active": { "type": "boolean" },
+        "expiresAt": { "type": "string", "format": "date-time" },
+        "usedByUid": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["code", "householdId", "householdName", "ownerId", "ownerName", "active", "expiresAt", "createdAt", "updatedAt"]
+    },
+    "CashTransaction": {
+      "title": "CashTransaction",
+      "description": "Financial transaction (INCOME, EXPENSE, SAVINGS_DEPOSIT, SAVINGS_WITHDRAWAL)",
+      "type": "object",
+      "properties": {
+        "householdId": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "type": { "type": "string", "enum": ["INCOME", "EXPENSE", "SAVINGS_DEPOSIT", "SAVINGS_WITHDRAWAL"] },
+        "amount": { "type": "integer" },
+        "category": { "type": "string" },
+        "source": { "type": "string" },
+        "paymentMethod": { "type": "string" },
+        "note": { "type": "string" },
+        "receiptUrl": { "type": "string" },
+        "recordedByUid": { "type": "string" },
+        "recordedByName": { "type": "string" },
+        "recordedByRoleLabel": { "type": "string" },
+        "savingsGoalId": { "type": "string" },
+        "savingsGoalName": { "type": "string" },
+        "transactionDateMillis": { "type": "integer" },
+        "clientMutationId": { "type": "string" },
+        "deleted": { "type": "boolean" },
+        "deletedAtMillis": { "type": "integer" },
+        "deletedByUid": { "type": "string" },
+        "deletedByName": { "type": "string" },
+        "deletedByRoleLabel": { "type": "string" },
+        "editCount": { "type": "integer" },
+        "lastEditedByUid": { "type": "string" },
+        "lastEditedByName": { "type": "string" },
+        "lastEditedByRoleLabel": { "type": "string" },
+        "lastEditSummary": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["householdId", "memberUids", "type", "amount", "category", "recordedByUid", "recordedByName", "recordedByRoleLabel", "transactionDateMillis", "clientMutationId", "createdAt", "updatedAt"]
+    },
+    "MonthlyBudget": {
+      "title": "MonthlyBudget",
+      "description": "Monthly household budget allocation by category or total",
+      "type": "object",
+      "properties": {
+        "householdId": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "monthKey": { "type": "string" },
+        "category": { "type": "string" },
+        "limitAmount": { "type": "integer" },
+        "alertThresholdPercent": { "type": "integer" },
+        "updatedByUid": { "type": "string" },
+        "updatedByName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["householdId", "memberUids", "monthKey", "category", "limitAmount", "alertThresholdPercent", "updatedByUid", "updatedByName", "createdAt", "updatedAt"]
+    },
+    "SavingsGoal": {
+      "title": "SavingsGoal",
+      "description": "Shared family savings goal",
+      "type": "object",
+      "properties": {
+        "householdId": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "targetAmount": { "type": "integer" },
+        "currentAmount": { "type": "integer" },
+        "startDateMillis": { "type": "integer" },
+        "deadlineMillis": { "type": "integer" },
+        "status": { "type": "string", "enum": ["ACTIVE", "COMPLETED"] },
+        "createdByUid": { "type": "string" },
+        "createdByName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["householdId", "memberUids", "name", "category", "targetAmount", "currentAmount", "startDateMillis", "deadlineMillis", "status", "createdByUid", "createdByName", "createdAt", "updatedAt"]
+    },
+    "SavingsTransaction": {
+      "title": "SavingsTransaction",
+      "description": "Deposit or withdrawal record for a specific savings goal",
+      "type": "object",
+      "properties": {
+        "householdId": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "goalId": { "type": "string" },
+        "goalName": { "type": "string" },
+        "type": { "type": "string", "enum": ["SAVINGS_DEPOSIT", "SAVINGS_WITHDRAWAL"] },
+        "amount": { "type": "integer" },
+        "note": { "type": "string" },
+        "recordedByUid": { "type": "string" },
+        "recordedByName": { "type": "string" },
+        "recordedByRoleLabel": { "type": "string" },
+        "transactionDateMillis": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["householdId", "memberUids", "goalId", "goalName", "type", "amount", "recordedByUid", "recordedByName", "recordedByRoleLabel", "transactionDateMillis", "createdAt", "updatedAt"]
+    },
+    "ActivityLog": {
+      "title": "ActivityLog",
+      "description": "Audit log of partner activities inside a household",
+      "type": "object",
+      "properties": {
+        "householdId": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "actorUid": { "type": "string" },
+        "actorName": { "type": "string" },
+        "actorRoleLabel": { "type": "string" },
+        "activityType": { "type": "string" },
+        "detail": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["householdId", "memberUids", "actorUid", "actorName", "actorRoleLabel", "activityType", "detail", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private user profile and notification preferences"
+    },
+    "/inviteCodes/{codeId}": {
+      "schema": { "$ref": "#/entities/InviteCode" },
+      "description": "Household invitation codes with expiration and atomic redemption"
+    },
+    "/households/{householdId}": {
+      "schema": { "$ref": "#/entities/Household" },
+      "description": "Shared family finance ledger capped at 2 active members"
+    },
+    "/households/{householdId}/members/{uid}": {
+      "schema": { "$ref": "#/entities/HouseholdMember" },
+      "description": "Active members of a household"
+    },
+    "/households/{householdId}/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/CashTransaction" },
+      "description": "Shared income, expense, and savings allocation transactions"
+    },
+    "/households/{householdId}/budgets/{budgetId}": {
+      "schema": { "$ref": "#/entities/MonthlyBudget" },
+      "description": "Monthly household expense budgets"
+    },
+    "/households/{householdId}/savingsGoals/{goalId}": {
+      "schema": { "$ref": "#/entities/SavingsGoal" },
+      "description": "Shared family savings targets"
+    },
+    "/households/{householdId}/savingsTransactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/SavingsTransaction" },
+      "description": "Deposits and withdrawals linked to savings goals"
+    },
+    "/households/{householdId}/activityLogs/{activityId}": {
+      "schema": { "$ref": "#/entities/ActivityLog" },
+      "description": "Partner activity timeline"
+    }
+  }
+}
