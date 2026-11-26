@@ -39,8 +39,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
@@ -81,6 +83,7 @@ import com.example.ui.dashboard.DashboardScreen
 import com.example.ui.profile.ProfileScreen
 import com.example.ui.reports.ReportsScreen
 import com.example.ui.savings.SavingsScreen
+import com.example.ui.theme.DarkEmeraldPrimary
 import com.example.ui.theme.DarkExpenseRed
 import com.example.ui.theme.DarkExpenseRedBg
 import com.example.ui.theme.DarkIncomeGreen
@@ -223,6 +226,8 @@ fun MainShell(
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             bottomBar = {
                 if (!useRail && !isSubScreen) {
+                    val isDarkNav = isSystemInDarkTheme()
+                    val activeLabelColor = if (isDarkNav) DarkEmeraldPrimary else EmeraldPrimary
                     NavigationBar(modifier = Modifier.navigationBarsPadding()) {
                         tabs.forEach { tab ->
                             val selected = currentDestination?.hasRoute(tab.route::class) == true
@@ -230,7 +235,20 @@ fun MainShell(
                                 selected = selected,
                                 onClick = { navigateToTab(tab.route) },
                                 icon = { Icon(tab.icon, contentDescription = tab.label) },
-                                label = { Text(tab.label, maxLines = 1) },
+                                label = {
+                                    Text(
+                                        text = tab.label,
+                                        maxLines = 1,
+                                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
+                                    )
+                                },
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = Color.White,
+                                    selectedTextColor = activeLabelColor,
+                                    indicatorColor = EmeraldPrimary,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                ),
                                 modifier = Modifier.testTag(tab.testTag)
                             )
                         }
@@ -259,6 +277,8 @@ fun MainShell(
                     .padding(innerPadding)
             ) {
                 if (useRail && !isSubScreen) {
+                    val isDarkRail = isSystemInDarkTheme()
+                    val activeLabelColor = if (isDarkRail) DarkEmeraldPrimary else EmeraldPrimary
                     NavigationRail(modifier = Modifier.fillMaxHeight()) {
                         Spacer(Modifier.height(12.dp))
                         tabs.forEach { tab ->
@@ -267,7 +287,20 @@ fun MainShell(
                                 selected = selected,
                                 onClick = { navigateToTab(tab.route) },
                                 icon = { Icon(tab.icon, contentDescription = tab.label) },
-                                label = { Text(tab.label, maxLines = 1) },
+                                label = {
+                                    Text(
+                                        text = tab.label,
+                                        maxLines = 1,
+                                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
+                                    )
+                                },
+                                colors = NavigationRailItemDefaults.colors(
+                                    selectedIconColor = Color.White,
+                                    selectedTextColor = activeLabelColor,
+                                    indicatorColor = EmeraldPrimary,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                ),
                                 modifier = Modifier.testTag(tab.testTag)
                             )
                         }

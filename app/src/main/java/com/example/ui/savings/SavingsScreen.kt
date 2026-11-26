@@ -186,7 +186,7 @@ fun SavingsScreen(
                 EmptyStateCard(
                     icon = Icons.Rounded.Savings,
                     title = "Belum Ada Target Tabungan",
-                    subtitle = "Mulai buat target Dana Darurat, Beli Rumah, Liburan, atau Pendidikan Anak bersama pasangan.",
+                    subtitle = "Mulai buat target Nikah, Dana Darurat, Beli Rumah, Liburan, atau Pendidikan Anak bersama pasangan.",
                     actionLabel = "Buat Target Pertama",
                     onAction = { showCreateDialog = true }
                 )

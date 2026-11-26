@@ -6,12 +6,14 @@ import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,8 +25,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -95,6 +95,7 @@ enum class PeriodFilter(val label: String) {
     ALL("Semua")
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TransactionsScreen(
     transactions: List<CashTransaction>,
@@ -215,134 +216,196 @@ fun TransactionsScreen(
             }
         }
 
-        // Period Chips
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            PeriodFilter.entries.forEach { pf ->
-                FilterChip(
-                    selected = periodFilter == pf,
-                    onClick = {
-                        periodFilter = pf
-                        if (pf == PeriodFilter.CUSTOM_RANGE) showRangeDialog = true
-                    },
-                    label = { Text(pf.label) }
-                )
-            }
-        }
+        val hasCustomFilter = periodFilter != PeriodFilter.THIS_MONTH ||
+            typeFilter != null ||
+            categoryFilter != null ||
+            recorderFilter != null ||
+            showDeletedOnly
 
-        // Secondary Filters (Type, Category, Recorder)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 96.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            FilterChip(
-                selected = typeFilter == null,
-                onClick = { typeFilter = null },
-                label = { Text("Semua Tipe") }
-            )
-            FilterChip(
-                selected = typeFilter == TransactionType.INCOME,
-                onClick = { typeFilter = if (typeFilter == TransactionType.INCOME) null else TransactionType.INCOME },
-                label = { Text("Pemasukan") }
-            )
-            FilterChip(
-                selected = typeFilter == TransactionType.EXPENSE,
-                onClick = { typeFilter = if (typeFilter == TransactionType.EXPENSE) null else TransactionType.EXPENSE },
-                label = { Text("Pengeluaran") }
-            )
-            FilterChip(
-                selected = typeFilter == TransactionType.SAVINGS_DEPOSIT,
-                onClick = {
-                    typeFilter = if (typeFilter == TransactionType.SAVINGS_DEPOSIT) null else TransactionType.SAVINGS_DEPOSIT
-                },
-                label = { Text("Tabungan") }
-            )
-
-            // Category Dropdown Chip
-            FilterChip(
-                selected = categoryFilter != null,
-                onClick = { showCategoryMenu = true },
-                leadingIcon = { Icon(Icons.Rounded.FilterList, contentDescription = null, modifier = Modifier.size(16.dp)) },
-                label = { Text(categoryFilter ?: "Kategori") }
-            )
-            DropdownMenu(
-                expanded = showCategoryMenu,
-                onDismissRequest = { showCategoryMenu = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text("Semua Kategori") },
-                    onClick = {
-                        categoryFilter = null
-                        showCategoryMenu = false
-                    }
-                )
-                allCategories.forEach { cat ->
-                    DropdownMenuItem(
-                        text = { Text(cat) },
-                        onClick = {
-                            categoryFilter = cat
-                            showCategoryMenu = false
+            item(key = "filters_panel") {
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 1.dp,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Periode",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            if (hasCustomFilter) {
+                                TextButton(
+                                    onClick = {
+                                        periodFilter = PeriodFilter.THIS_MONTH
+                                        typeFilter = null
+                                        categoryFilter = null
+                                        recorderFilter = null
+                                        showDeletedOnly = false
+                                    },
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                                ) {
+                                    Text("Reset Filter", style = MaterialTheme.typography.labelMedium)
+                                }
+                            }
                         }
-                    )
+
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(0.dp)
+                        ) {
+                            PeriodFilter.entries.forEach { pf ->
+                                FilterChip(
+                                    selected = periodFilter == pf,
+                                    onClick = {
+                                        periodFilter = pf
+                                        if (pf == PeriodFilter.CUSTOM_RANGE) showRangeDialog = true
+                                    },
+                                    label = { Text(pf.label, maxLines = 1) }
+                                )
+                            }
+                        }
+
+                        Text(
+                            text = "Tipe & Filter",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.SemiBold
+                        )
+
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(0.dp)
+                        ) {
+                            FilterChip(
+                                selected = typeFilter == null,
+                                onClick = { typeFilter = null },
+                                label = { Text("Semua Tipe", maxLines = 1) }
+                            )
+                            FilterChip(
+                                selected = typeFilter == TransactionType.INCOME,
+                                onClick = {
+                                    typeFilter = if (typeFilter == TransactionType.INCOME) null else TransactionType.INCOME
+                                },
+                                label = { Text("Pemasukan", maxLines = 1) }
+                            )
+                            FilterChip(
+                                selected = typeFilter == TransactionType.EXPENSE,
+                                onClick = {
+                                    typeFilter = if (typeFilter == TransactionType.EXPENSE) null else TransactionType.EXPENSE
+                                },
+                                label = { Text("Pengeluaran", maxLines = 1) }
+                            )
+                            FilterChip(
+                                selected = typeFilter == TransactionType.SAVINGS_DEPOSIT,
+                                onClick = {
+                                    typeFilter = if (typeFilter == TransactionType.SAVINGS_DEPOSIT) null else TransactionType.SAVINGS_DEPOSIT
+                                },
+                                label = { Text("Tabungan", maxLines = 1) }
+                            )
+
+                            Box {
+                                FilterChip(
+                                    selected = categoryFilter != null,
+                                    onClick = { showCategoryMenu = true },
+                                    leadingIcon = {
+                                        Icon(Icons.Rounded.FilterList, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    },
+                                    label = { Text(categoryFilter ?: "Kategori", maxLines = 1) }
+                                )
+                                DropdownMenu(
+                                    expanded = showCategoryMenu,
+                                    onDismissRequest = { showCategoryMenu = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Semua Kategori") },
+                                        onClick = {
+                                            categoryFilter = null
+                                            showCategoryMenu = false
+                                        }
+                                    )
+                                    allCategories.forEach { cat ->
+                                        DropdownMenuItem(
+                                            text = { Text(cat) },
+                                            onClick = {
+                                                categoryFilter = cat
+                                                showCategoryMenu = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
+                            Box {
+                                FilterChip(
+                                    selected = recorderFilter != null,
+                                    onClick = { showRecorderMenu = true },
+                                    label = { Text(recorderFilter ?: "Pencatat", maxLines = 1) }
+                                )
+                                DropdownMenu(
+                                    expanded = showRecorderMenu,
+                                    onDismissRequest = { showRecorderMenu = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Semua Pencatat") },
+                                        onClick = {
+                                            recorderFilter = null
+                                            showRecorderMenu = false
+                                        }
+                                    )
+                                    allRecorders.forEach { rec ->
+                                        DropdownMenuItem(
+                                            text = { Text(rec) },
+                                            onClick = {
+                                                recorderFilter = rec
+                                                showRecorderMenu = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+
+                            FilterChip(
+                                selected = showDeletedOnly,
+                                onClick = { showDeletedOnly = !showDeletedOnly },
+                                leadingIcon = {
+                                    Icon(Icons.Rounded.History, contentDescription = null, modifier = Modifier.size(16.dp))
+                                },
+                                label = {
+                                    Text(
+                                        text = if (deletedRestorableCount > 0) "Terhapus ($deletedRestorableCount)" else "Terhapus",
+                                        maxLines = 1
+                                    )
+                                },
+                                modifier = Modifier.testTag("filter_deleted_transactions")
+                            )
+                        }
+                    }
                 }
             }
 
-            // Recorder Dropdown Chip
-            FilterChip(
-                selected = recorderFilter != null,
-                onClick = { showRecorderMenu = true },
-                label = { Text(recorderFilter ?: "Pencatat") }
-            )
-            DropdownMenu(
-                expanded = showRecorderMenu,
-                onDismissRequest = { showRecorderMenu = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text("Semua Pencatat") },
-                    onClick = {
-                        recorderFilter = null
-                        showRecorderMenu = false
-                    }
-                )
-                allRecorders.forEach { rec ->
-                    DropdownMenuItem(
-                        text = { Text(rec) },
-                        onClick = {
-                            recorderFilter = rec
-                            showRecorderMenu = false
-                        }
-                    )
-                }
-            }
-
-            // Soft-Deleted Audit Toggle Chip
-            FilterChip(
-                selected = showDeletedOnly,
-                onClick = { showDeletedOnly = !showDeletedOnly },
-                leadingIcon = { Icon(Icons.Rounded.History, contentDescription = null, modifier = Modifier.size(16.dp)) },
-                label = {
-                    Text(
-                        if (deletedRestorableCount > 0) "Terhapus ($deletedRestorableCount)" else "Terhapus"
-                    )
-                },
-                modifier = Modifier.testTag("filter_deleted_transactions")
-            )
-        }
-
-        if (filtered.isEmpty()) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp)
-            ) {
-                item {
+            if (filtered.isEmpty()) {
+                item(key = "empty_transactions") {
                     EmptyStateCard(
                         icon = Icons.AutoMirrored.Rounded.ReceiptLong,
                         title = if (showDeletedOnly) "Tidak Ada Transaksi Terhapus" else "Tidak Ada Transaksi",
@@ -350,13 +413,7 @@ fun TransactionsScreen(
                         else "Belum ada transaksi yang sesuai dengan filter yang dipilih."
                     )
                 }
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
+            } else {
                 items(filtered, key = { it.id }) { tx ->
                     TransactionItemCard(
                         tx = tx,

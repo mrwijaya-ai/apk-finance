@@ -89,6 +89,7 @@ object CoupleCashCategories {
 
     val savingsCategories = listOf(
         "Dana Darurat",
+        "Nikah",
         "Beli Rumah",
         "Kendaraan",
         "Liburan Keluarga",
